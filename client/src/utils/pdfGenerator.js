@@ -1,4 +1,4 @@
-// Simple data export and print utilities
+// Simple data export and print utilities (no external dependencies)
 export const generateDataReport = (stats, data) => {
   const report = {
     title: 'Analytics Dashboard Report',
@@ -129,35 +129,7 @@ export const exportChartsAsImages = async (chartRefs) => {
     pestleAnalysis: 'PESTLE Analysis'
   };
 
-  const downloadImage = (canvas, filename) => {
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = canvas.toDataURL('image/png');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Try to capture charts using html2canvas if available
-  if (typeof window.html2canvas !== 'undefined') {
-    for (const [key, ref] of Object.entries(chartRefs)) {
-      if (ref && ref.current) {
-        try {
-          const canvas = await window.html2canvas(ref.current, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff'
-          });
-          downloadImage(canvas, `${chartNames[key] || key}.png`);
-        } catch (error) {
-          console.error(`Error capturing ${key}:`, error);
-        }
-      }
-    }
-  } else {
-    // Fallback: just print the page
-    alert('Chart export requires html2canvas. Printing page instead.');
-    printDashboard();
-  }
+  // Fallback: just print the page since html2canvas is not available
+  alert('Chart export requires additional libraries. Printing dashboard instead.');
+  printDashboard();
 }; 
