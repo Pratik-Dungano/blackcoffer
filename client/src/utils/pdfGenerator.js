@@ -20,7 +20,7 @@ export const generateDataReport = (stats, data) => {
   const dataStr = JSON.stringify(report, null, 2);
   const dataBlob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(dataBlob);
-  
+
   const link = document.createElement('a');
   link.href = url;
   link.download = 'dashboard-report.json';
@@ -38,16 +38,16 @@ export const generateCSVReport = (data) => {
 
   // Get headers from first data item
   const headers = Object.keys(data[0]);
-  
+
   // Create CSV content
   const csvContent = [
     headers.join(','),
-    ...data.map(item => 
+    ...data.map(item =>
       headers.map(header => {
         const value = item[header];
         // Escape commas and quotes in CSV
-        return typeof value === 'string' && (value.includes(',') || value.includes('"')) 
-          ? `"${value.replace(/"/g, '""')}"` 
+        return typeof value === 'string' && (value.includes(',') || value.includes('"'))
+          ? `"${value.replace(/"/g, '""')}"`
           : value;
       }).join(',')
     )
@@ -56,7 +56,7 @@ export const generateCSVReport = (data) => {
   // Create and download CSV file
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  
+
   const link = document.createElement('a');
   link.href = url;
   link.download = 'dashboard-data.csv';
@@ -108,10 +108,10 @@ export const generateDataSummary = (data) => {
 export const printDashboard = () => {
   // Add print-specific class to body
   document.body.classList.add('printing');
-  
+
   // Trigger print
   window.print();
-  
+
   // Remove print class after printing
   setTimeout(() => {
     document.body.classList.remove('printing');
@@ -119,16 +119,6 @@ export const printDashboard = () => {
 };
 
 export const exportChartsAsImages = async (chartRefs) => {
-  const chartNames = {
-    sectorAnalysis: 'Sector Analysis',
-    intensityChart: 'Intensity Chart',
-    topicTrends: 'Topic Trends',
-    regionalDistribution: 'Regional Distribution',
-    yearAnalysis: 'Year Analysis',
-    swotAnalysis: 'SWOT Analysis',
-    pestleAnalysis: 'PESTLE Analysis'
-  };
-
   // Fallback: just print the page since html2canvas is not available
   alert('Chart export requires additional libraries. Printing dashboard instead.');
   printDashboard();

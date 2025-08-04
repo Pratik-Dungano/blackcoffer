@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import StatsCards from './StatsCards';
 import SectorAnalysis from './SectorAnalysis';
@@ -12,9 +12,6 @@ import SWOTAnalysis from './SWOTAnalysis';
 
 const Dashboard = ({ filters = {}, stats, data, chartRefs }) => {
   const [filteredData, setFilteredData] = useState([]);
-  const [sectorAnalysis, setSectorAnalysis] = useState([]);
-  const [topicTrends, setTopicTrends] = useState([]);
-  const [pestleAnalysis, setPestleAnalysis] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,25 +26,16 @@ const Dashboard = ({ filters = {}, stats, data, chartRefs }) => {
 
   const fetchData = async () => {
     try {
-      const [dataRes, sectorRes, trendsRes, pestleRes] = await Promise.all([
-        axios.get('/api/data'),
-        axios.get('/api/sector-analysis'),
-        axios.get('/api/topic-trends'),
-        axios.get('/api/pestle-analysis')
+      const [dataRes] = await Promise.all([
+        axios.get('/api/data')
       ]);
 
       setFilteredData(dataRes.data || []);
-      setSectorAnalysis(sectorRes.data || []);
-      setTopicTrends(trendsRes.data || []);
-      setPestleAnalysis(pestleRes.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching initial data:', error);
       // Set empty arrays as fallback
       setFilteredData([]);
-      setSectorAnalysis([]);
-      setTopicTrends([]);
-      setPestleAnalysis([]);
       setLoading(false);
     }
   };
@@ -64,26 +52,15 @@ const Dashboard = ({ filters = {}, stats, data, chartRefs }) => {
         }
       });
 
-      // Fetch all data and analysis based on current filters
-      const [dataRes, sectorRes, trendsRes, pestleRes] = await Promise.all([
-        axios.get(`/api/data?${params.toString()}`),
-        axios.get(`/api/sector-analysis?${params.toString()}`),
-        axios.get(`/api/topic-trends?${params.toString()}`),
-        axios.get(`/api/pestle-analysis?${params.toString()}`)
-      ]);
+      // Fetch filtered data
+      const dataRes = await axios.get(`/api/data?${params.toString()}`);
 
       setFilteredData(dataRes.data || []);
-      setSectorAnalysis(sectorRes.data || []);
-      setTopicTrends(trendsRes.data || []);
-      setPestleAnalysis(pestleRes.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching filtered data:', error);
       // Set empty arrays as fallback
       setFilteredData([]);
-      setSectorAnalysis([]);
-      setTopicTrends([]);
-      setPestleAnalysis([]);
       setLoading(false);
     }
   };
