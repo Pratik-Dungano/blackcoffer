@@ -1,0 +1,189 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #f8fafc;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+  }
+  
+  /* Ensure root container doesn't overflow */
+  #root {
+    overflow-x: hidden;
+    width: 100%;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+  
+  .select-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white;
+  }
+
+  /* Sidebar styles */
+  .sidebar-open {
+    margin-left: 16rem;
+  }
+
+  .sidebar-closed {
+    margin-left: 0;
+  }
+
+  /* Custom scrollbar for sidebar */
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  /* Responsive utilities */
+  .container-responsive {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Prevent text overflow */
+  .text-ellipsis {
+    @apply overflow-hidden text-ellipsis whitespace-nowrap;
+  }
+
+  /* Mobile-first responsive grid */
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6;
+  }
+
+  /* Main content area styles */
+  .main-content {
+    @apply flex-1 min-w-0 max-w-full;
+  }
+
+  /* Ensure charts don't overflow */
+  .chart-container {
+    @apply w-full max-w-full overflow-hidden;
+  }
+
+  /* Responsive table container */
+  .table-container {
+    @apply w-full overflow-x-auto;
+  }
+}
+
+/* Print styles */
+@media print {
+  /* Hide non-essential elements */
+  header,
+  .sidebar,
+  button,
+  .print-button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Ensure full width for print */
+  main {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+    break-inside: avoid;
+  }
+
+  /* Ensure charts are visible in print */
+  .chart-container {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Better text contrast for print */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Ensure tables don't break across pages */
+  table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Add page breaks where needed */
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* Ensure proper spacing */
+  .space-y-4 > * + *,
+  .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+
+  /* Hide scrollbars in print */
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  *::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
+/* Printing class styles */
+body.printing {
+  background: white !important;
+}
+
+body.printing header,
+body.printing .sidebar,
+body.printing button:not(.print-keep) {
+  display: none !important;
+}
+
+body.printing main {
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+body.printing .card {
+  box-shadow: none !important;
+  border: 1px solid #e5e7eb !important;
+  break-inside: avoid;
+}
+
+body.printing .chart-container {
+  page-break-inside: avoid;
+  break-inside: avoid;
+} 
