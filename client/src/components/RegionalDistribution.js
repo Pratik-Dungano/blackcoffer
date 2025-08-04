@@ -14,15 +14,30 @@ ChartJS.register(
 );
 
 const RegionalDistribution = ({ data }) => {
+  // Validate and provide fallback for data
+  const chartData = Array.isArray(data) ? data : [];
+  
+  if (chartData.length === 0) {
+    return (
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Regional Distribution</h3>
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          No regional data available
+        </div>
+      </div>
+    );
+  }
+
   // Group data by region
   const regionData = {};
-  data.forEach(item => {
-    if (regionData[item.region]) {
-      regionData[item.region]++;
-    } else {
-      regionData[item.region] = 1;
+  chartData.forEach(item => {
+    if (item.region) {
+      regionData[item.region] = (regionData[item.region] || 0) + 1;
     }
   });
+
+  const regions = Object.keys(regionData);
+  const counts = Object.values(regionData);
 
   const colors = [
     'rgba(59, 130, 246, 0.8)',
@@ -31,17 +46,17 @@ const RegionalDistribution = ({ data }) => {
     'rgba(239, 68, 68, 0.8)',
     'rgba(147, 51, 234, 0.8)',
     'rgba(236, 72, 153, 0.8)',
+    'rgba(34, 197, 94, 0.8)',
+    'rgba(249, 115, 22, 0.8)',
   ];
 
-  const chartData = {
-    labels: Object.keys(regionData),
+  const chartConfig = {
+    labels: regions,
     datasets: [
       {
-        data: Object.values(regionData),
-        backgroundColor: colors.slice(0, Object.keys(regionData).length),
-        borderColor: colors.slice(0, Object.keys(regionData).length).map(color => 
-          color.replace('0.8)', '1)')
-        ),
+        data: counts,
+        backgroundColor: colors.slice(0, regions.length),
+        borderColor: colors.slice(0, regions.length).map(color => color.replace('0.8', '1')),
         borderWidth: 2,
       },
     ],
@@ -49,31 +64,23 @@ const RegionalDistribution = ({ data }) => {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'bottom',
       },
       title: {
         display: true,
-        text: 'Regional Distribution',
-        font: {
-          size: 16,
-          weight: 'bold',
-        },
+        text: 'Records by Region',
       },
     },
   };
 
   return (
     <div className="card">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Regional Distribution</h3>
-        <p className="text-sm text-gray-600">Distribution of records across different regions</p>
-      </div>
-      <div className="h-80 flex items-center justify-center">
-        <div className="w-64 h-64">
-          <Doughnut data={chartData} options={options} />
-        </div>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Regional Distribution</h3>
+      <div className="h-64">
+        <Doughnut data={chartConfig} options={options} />
       </div>
     </div>
   );

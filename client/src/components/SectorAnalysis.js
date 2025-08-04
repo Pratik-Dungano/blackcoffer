@@ -20,21 +20,38 @@ ChartJS.register(
 );
 
 const SectorAnalysis = ({ data }) => {
-  const chartData = {
-    labels: data.map(item => item._id),
+  // Validate and provide fallback for data
+  const chartData = Array.isArray(data) ? data : [];
+  
+  if (chartData.length === 0) {
+    return (
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Sector Analysis</h3>
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          No sector data available
+        </div>
+      </div>
+    );
+  }
+
+  const sectorData = chartData.reduce((acc, item) => {
+    if (item.sector) {
+      acc[item.sector] = (acc[item.sector] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  const sectors = Object.keys(sectorData);
+  const counts = Object.values(sectorData);
+
+  const chartConfig = {
+    labels: sectors,
     datasets: [
       {
-        label: 'Average Intensity',
-        data: data.map(item => item.avgIntensity),
+        label: 'Number of Records',
+        data: counts,
         backgroundColor: 'rgba(59, 130, 246, 0.8)',
         borderColor: 'rgba(59, 130, 246, 1)',
-        borderWidth: 1,
-      },
-      {
-        label: 'Average Likelihood',
-        data: data.map(item => item.avgLikelihood * 100),
-        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-        borderColor: 'rgba(16, 185, 129, 1)',
         borderWidth: 1,
       },
     ],
@@ -42,44 +59,28 @@ const SectorAnalysis = ({ data }) => {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top',
       },
       title: {
         display: true,
-        text: 'Sector Analysis - Intensity vs Likelihood',
-        font: {
-          size: 16,
-          weight: 'bold',
-        },
+        text: 'Records by Sector',
       },
     },
     scales: {
       y: {
         beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Values',
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: 'Sectors',
-        },
       },
     },
   };
 
   return (
     <div className="card">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Sector Performance Analysis</h3>
-        <p className="text-sm text-gray-600">Comparing intensity and likelihood across different sectors</p>
-      </div>
-      <div className="h-80">
-        <Bar data={chartData} options={options} />
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Sector Analysis</h3>
+      <div className="h-64">
+        <Bar data={chartConfig} options={options} />
       </div>
     </div>
   );

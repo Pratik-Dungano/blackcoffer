@@ -22,58 +22,57 @@ ChartJS.register(
 );
 
 const TopicTrends = ({ data }) => {
-  // Process data to group by topic and year
-  const topicYearData = {};
-  const years = new Set();
+  // Validate and provide fallback for data
+  const chartData = Array.isArray(data) ? data : [];
+  
+  if (chartData.length === 0) {
+    return (
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Topic Trends</h3>
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          No topic data available
+        </div>
+      </div>
+    );
+  }
 
-  data.forEach(item => {
-    const topic = item._id.topic;
-    const year = item._id.year;
-    years.add(year);
-    
-    if (!topicYearData[topic]) {
-      topicYearData[topic] = {};
+  // Group data by topic and count occurrences
+  const topicData = {};
+  chartData.forEach(item => {
+    if (item.topic) {
+      topicData[item.topic] = (topicData[item.topic] || 0) + 1;
     }
-    topicYearData[topic][year] = item.count;
   });
 
-  const sortedYears = Array.from(years).sort();
-  const colors = [
-    'rgba(59, 130, 246, 1)',
-    'rgba(16, 185, 129, 1)',
-    'rgba(245, 158, 11, 1)',
-    'rgba(239, 68, 68, 1)',
-    'rgba(147, 51, 234, 1)',
-    'rgba(236, 72, 153, 1)',
-  ];
+  // Get top 10 topics
+  const topTopics = Object.entries(topicData)
+    .sort(([,a], [,b]) => b - a)
+    .slice(0, 10);
 
-  const datasets = Object.keys(topicYearData).map((topic, index) => ({
-    label: topic,
-    data: sortedYears.map(year => topicYearData[topic][year] || 0),
-    borderColor: colors[index % colors.length],
-    backgroundColor: colors[index % colors.length].replace('1)', '0.1)'),
-    borderWidth: 2,
-    tension: 0.4,
-  }));
-
-  const chartData = {
-    labels: sortedYears,
-    datasets,
+  const chartConfig = {
+    labels: topTopics.map(([topic]) => topic),
+    datasets: [
+      {
+        label: 'Number of Records',
+        data: topTopics.map(([, count]) => count),
+        borderColor: 'rgba(16, 185, 129, 1)',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        tension: 0.1,
+        fill: true,
+      },
+    ],
   };
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top',
       },
       title: {
         display: true,
-        text: 'Topic Trends Over Time',
-        font: {
-          size: 16,
-          weight: 'bold',
-        },
+        text: 'Top 10 Topics by Record Count',
       },
     },
     scales: {
@@ -87,7 +86,7 @@ const TopicTrends = ({ data }) => {
       x: {
         title: {
           display: true,
-          text: 'Year',
+          text: 'Topics',
         },
       },
     },
@@ -95,12 +94,9 @@ const TopicTrends = ({ data }) => {
 
   return (
     <div className="card">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Topic Trends</h3>
-        <p className="text-sm text-gray-600">Evolution of topics over time</p>
-      </div>
-      <div className="h-80">
-        <Line data={chartData} options={options} />
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Topic Trends</h3>
+      <div className="h-64">
+        <Line data={chartConfig} options={options} />
       </div>
     </div>
   );

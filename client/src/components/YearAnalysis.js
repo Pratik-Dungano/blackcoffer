@@ -22,74 +22,76 @@ ChartJS.register(
 );
 
 const YearAnalysis = ({ data }) => {
-  // Process data to group by year
+  // Validate and provide fallback for data
+  const chartData = Array.isArray(data) ? data : [];
+  
+  if (chartData.length === 0) {
+    return (
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Year Analysis</h3>
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          No year data available
+        </div>
+      </div>
+    );
+  }
+
+  // Group data by year
   const yearData = {};
-  data.forEach(item => {
-    const year = item.start_year || item.end_year || 'Unknown';
-    if (!yearData[year]) {
-      yearData[year] = {
-        count: 0,
-        avgIntensity: 0,
-        avgLikelihood: 0,
-        avgRelevance: 0
-      };
+  chartData.forEach(item => {
+    const year = item.end_year || item.start_year;
+    if (year) {
+      if (!yearData[year]) {
+        yearData[year] = {
+          count: 0,
+          totalIntensity: 0,
+          totalLikelihood: 0
+        };
+      }
+      yearData[year].count++;
+      yearData[year].totalIntensity += item.intensity || 0;
+      yearData[year].totalLikelihood += item.likelihood || 0;
     }
-    yearData[year].count++;
-    yearData[year].avgIntensity += item.intensity || 0;
-    yearData[year].avgLikelihood += item.likelihood || 0;
-    yearData[year].avgRelevance += item.relevance || 0;
   });
 
-  // Calculate averages
-  Object.keys(yearData).forEach(year => {
-    const data = yearData[year];
-    data.avgIntensity = data.count > 0 ? data.avgIntensity / data.count : 0;
-    data.avgLikelihood = data.count > 0 ? data.avgLikelihood / data.count : 0;
-    data.avgRelevance = data.count > 0 ? data.avgRelevance / data.count : 0;
-  });
+  const years = Object.keys(yearData).sort();
+  const recordCounts = years.map(year => yearData[year].count);
+  const avgIntensities = years.map(year => yearData[year].totalIntensity / yearData[year].count);
+  const avgLikelihoods = years.map(year => yearData[year].totalLikelihood / yearData[year].count);
 
-  const sortedYears = Object.keys(yearData).sort((a, b) => {
-    if (a === 'Unknown') return 1;
-    if (b === 'Unknown') return -1;
-    return parseInt(a) - parseInt(b);
-  });
-
-  const chartData = {
-    labels: sortedYears,
+  const chartConfig = {
+    labels: years,
     datasets: [
       {
         label: 'Number of Records',
-        data: sortedYears.map(year => yearData[year].count),
+        data: recordCounts,
         borderColor: 'rgba(59, 130, 246, 1)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
         yAxisID: 'y',
+        tension: 0.1,
       },
       {
         label: 'Average Intensity',
-        data: sortedYears.map(year => yearData[year].avgIntensity),
+        data: avgIntensities,
         borderColor: 'rgba(239, 68, 68, 1)',
         backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        borderWidth: 2,
-        tension: 0.4,
         yAxisID: 'y1',
+        tension: 0.1,
       },
       {
         label: 'Average Likelihood',
-        data: sortedYears.map(year => yearData[year].avgLikelihood),
+        data: avgLikelihoods.map(val => val * 100), // Convert to percentage
         borderColor: 'rgba(16, 185, 129, 1)',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 2,
-        tension: 0.4,
         yAxisID: 'y1',
-      }
+        tension: 0.1,
+      },
     ],
   };
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     interaction: {
       mode: 'index',
       intersect: false,
@@ -100,15 +102,12 @@ const YearAnalysis = ({ data }) => {
       },
       title: {
         display: true,
-        text: 'Year-wise Analysis',
-        font: {
-          size: 16,
-          weight: 'bold',
-        },
+        text: 'Year Analysis',
       },
     },
     scales: {
       x: {
+        display: true,
         title: {
           display: true,
           text: 'Year',
@@ -140,12 +139,9 @@ const YearAnalysis = ({ data }) => {
 
   return (
     <div className="card">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Year-wise Analysis</h3>
-        <p className="text-sm text-gray-600">Trends in data volume and metrics over time</p>
-      </div>
-      <div className="h-80">
-        <Line data={chartData} options={options} />
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Year Analysis</h3>
+      <div className="h-64">
+        <Line data={chartConfig} options={options} />
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ const Dashboard = ({ filters = {}, stats, data, chartRefs }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initial data fetch (might be redundant if fetchFilteredData is called immediately)
+    // Initial data fetch
     fetchData();
   }, []);
 
@@ -36,13 +36,18 @@ const Dashboard = ({ filters = {}, stats, data, chartRefs }) => {
         axios.get('/api/pestle-analysis')
       ]);
 
-      setFilteredData(dataRes.data);
-      setSectorAnalysis(sectorRes.data);
-      setTopicTrends(trendsRes.data);
-      setPestleAnalysis(pestleRes.data);
+      setFilteredData(dataRes.data || []);
+      setSectorAnalysis(sectorRes.data || []);
+      setTopicTrends(trendsRes.data || []);
+      setPestleAnalysis(pestleRes.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching initial data:', error);
+      // Set empty arrays as fallback
+      setFilteredData([]);
+      setSectorAnalysis([]);
+      setTopicTrends([]);
+      setPestleAnalysis([]);
       setLoading(false);
     }
   };
@@ -67,13 +72,18 @@ const Dashboard = ({ filters = {}, stats, data, chartRefs }) => {
         axios.get(`/api/pestle-analysis?${params.toString()}`)
       ]);
 
-      setFilteredData(dataRes.data);
-      setSectorAnalysis(sectorRes.data);
-      setTopicTrends(trendsRes.data);
-      setPestleAnalysis(pestleRes.data);
+      setFilteredData(dataRes.data || []);
+      setSectorAnalysis(sectorRes.data || []);
+      setTopicTrends(trendsRes.data || []);
+      setPestleAnalysis(pestleRes.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching filtered data:', error);
+      // Set empty arrays as fallback
+      setFilteredData([]);
+      setSectorAnalysis([]);
+      setTopicTrends([]);
+      setPestleAnalysis([]);
       setLoading(false);
     }
   };
@@ -90,13 +100,13 @@ const Dashboard = ({ filters = {}, stats, data, chartRefs }) => {
     <div className="space-y-4 lg:space-y-6 w-full max-w-full">
       {/* Stats Cards */}
       <div className="w-full">
-        <StatsCards stats={stats} />
+        <StatsCards stats={stats || {}} />
       </div>
       
       {/* Charts Grid - Row 1 */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4 lg:gap-6 w-full">
         <div className="chart-container" ref={chartRefs?.sectorAnalysis}>
-          <SectorAnalysis data={sectorAnalysis} />
+          <SectorAnalysis data={filteredData} />
         </div>
         <div className="chart-container" ref={chartRefs?.intensityChart}>
           <IntensityChart data={filteredData} />
@@ -106,7 +116,7 @@ const Dashboard = ({ filters = {}, stats, data, chartRefs }) => {
       {/* Charts Grid - Row 2 */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4 lg:gap-6 w-full">
         <div className="chart-container" ref={chartRefs?.topicTrends}>
-          <TopicTrends data={topicTrends} />
+          <TopicTrends data={filteredData} />
         </div>
         <div className="chart-container" ref={chartRefs?.regionalDistribution}>
           <RegionalDistribution data={filteredData} />
@@ -126,7 +136,7 @@ const Dashboard = ({ filters = {}, stats, data, chartRefs }) => {
       {/* Full Width Charts */}
       <div className="grid grid-cols-1 gap-4 lg:gap-6 w-full">
         <div className="chart-container" ref={chartRefs?.pestleAnalysis}>
-          <PESTLEAnalysis data={pestleAnalysis} />
+          <PESTLEAnalysis data={filteredData} />
         </div>
       </div>
       
